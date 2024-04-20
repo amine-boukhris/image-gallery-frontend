@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast, { Toaster } from 'react-hot-toast'
 
 const ACCEPTED_IMAGE_MIME_TYPES = [
     'image/jpeg',
@@ -28,7 +29,10 @@ export default function Add() {
                 body: formData,
             })
             if (response.ok) {
-                console.log('File uploaded successfully!')
+                setTitle('')
+                setDescription('')
+                setImage(undefined)
+                toast.success('Successfully toasted!')
             } else {
                 const errorData = await response.json()
                 console.log(errorData.message || 'Failed to upload file.')
@@ -41,7 +45,8 @@ export default function Add() {
     }
 
     return (
-        <div className="container my-12 border">
+        <div className="container my-12">
+            <Toaster />
             <form
                 className="space-y-6 max-w-2xl mx-auto"
                 encType="multipart/form-data"
@@ -102,6 +107,18 @@ export default function Add() {
                     value="Submit"
                     className="btn btn-neutral"
                 />
+                {image && ACCEPTED_IMAGE_MIME_TYPES.includes(image.type) && (
+                        <div className="w-full">
+                            <h2 className="mb-4 text-xl text-center mx-auto">
+                                Image preview
+                            </h2>
+                            <img
+                                src={URL.createObjectURL(image)}
+                                alt="Selected"
+                                className="mx-auto w-full"
+                            />
+                        </div>
+                    )}
             </form>
         </div>
     )

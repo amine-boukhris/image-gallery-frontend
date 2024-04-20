@@ -3,6 +3,7 @@ import Nav from './components/Nav'
 import Home from './pages/Home'
 import Add from './pages/Add'
 import Search from './pages/Search'
+import Image from './pages/Image'
 
 export default function App() {
     return (
@@ -13,6 +14,7 @@ export default function App() {
                 <Route index element={<Home />} />
                 <Route path="/add" element={<Add />} />
                 <Route path="/search/:query" element={<Search />} />
+                <Route path='/image/:id' element={<Image />} />
             </Routes>
         </BrowserRouter>
     )

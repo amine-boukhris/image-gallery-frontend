@@ -20,7 +20,7 @@ export default function Banner() {
         autoplaySpeed: 3000,
     }
     return (
-        <Slider {...settings}>
+        <Slider {...settings} className='rounded overflow-hidden'>
             {carouselImages.map((image, index) => {
                 return (
                     <div key={index} className="h-72">

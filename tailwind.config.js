@@ -2,7 +2,11 @@
 export default {
     content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
     theme: {
-        extend: {},
+        extend: {
+            screens: {
+                sm: '500px'
+            }
+        },
         container: {
             center: true,
             padding: '2rem',
