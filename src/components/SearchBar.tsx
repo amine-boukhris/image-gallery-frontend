@@ -18,7 +18,7 @@ export default function SearchBar() {
                 <input
                     type="text"
                     className="grow"
-                    placeholder="Search"
+                    placeholder="Search by title"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                 />
