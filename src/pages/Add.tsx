@@ -32,14 +32,13 @@ export default function Add() {
                 setTitle('')
                 setDescription('')
                 setImage(undefined)
-                toast.success('Successfully toasted!')
+                toast.success('Image added successfully.')
             } else {
-                const errorData = await response.json()
-                console.log(errorData.message || 'Failed to upload file.')
+                console.log('Failed to upload image.')
             }
         } catch (error) {
             if (error instanceof Error)
-                console.error('Error uploading file:', error.message)
+                console.error('Error uploading image:', error.message)
             else console.error(error)
         }
     }

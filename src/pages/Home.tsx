@@ -3,7 +3,7 @@ import Banner from '../components/Banner'
 import SearchBar from '../components/SearchBar'
 import { Link } from 'react-router-dom'
 
-type image = {
+export type image = {
     name: string
     title: string
     description: string
@@ -21,8 +21,7 @@ export default function Home() {
                     const data = await response.json()
                     setImages(data)
                 } else {
-                    const errorData = await response.json()
-                    console.log(errorData.message || 'Failed to fetch images.')
+                    console.error('Failed to fetch images.')
                 }
             } catch (error) {
                 if (error instanceof Error)
@@ -46,9 +45,8 @@ export default function Home() {
                 <div className="columns-1 sm:columns-2 md:columns-3 gap-8 sm:gap-4 md:gap-6">
                     {images.map((image) => {
                         return (
-                            <Link to={`/image/${image._id}`}>
+                            <Link to={`/image/${image._id}`} key={image._id} >
                                 <div
-                                    key={image._id}
                                     className="w-full mb-6 sm:mb-4 md:mb-6 rounded overflow-hidden border border-neutral-content/50 [@media(any-hover:hover){&:hover}]:scale-[1.025] duration-150 cursor-pointer"
                                 >
                                     <img
