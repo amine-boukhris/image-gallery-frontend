@@ -2,12 +2,15 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import type { image } from './Home'
 import toast, { Toaster } from 'react-hot-toast'
-import { Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 
 export default function Image() {
     const navigate = useNavigate()
     const { id } = useParams()
     const [image, setImage] = useState<image>()
+
+    const [title, setTitle] = useState('')
+    const [description, setDescription] = useState('')
 
     useEffect(() => {
         const fetchImage = async () => {
@@ -18,6 +21,8 @@ export default function Image() {
                 if (response.ok) {
                     const data = await response.json()
                     setImage(data)
+                    setTitle(data.title)
+                    setDescription(data.description)
                 } else if (response.status === 404 || response.status === 400) {
                     console.error('Image not found')
                     navigate('/not-found')
@@ -41,14 +46,13 @@ export default function Image() {
                 { method: 'DELETE' }
             )
             if (response.ok) {
-                const data = await response.json()
-                console.log(data)
                 toast.success('Image was deleted successfully.')
-                setTimeout(() => navigate('/'), 1000)
+                setImage(undefined)
+                setTimeout(() => navigate('/'), 750)
             } else if (response.status === 404 || response.status === 400) {
                 toast.error('Image not found.')
             } else {
-                console.error('Failed to fetch image.')
+                console.error('Failed to delete image.')
             }
         } catch (error) {
             if (error instanceof Error)
@@ -57,7 +61,39 @@ export default function Image() {
         }
     }
 
-    const openModal = () => {
+    const editImage = async () => {
+        if (!title) return toast.error("Title can't be empty.")
+        if (title === image?.title && description === image?.description)
+            return toast.error('Image data is the same.')
+        try {
+            const response = await fetch(
+                `http://localhost:5000/api/image/${id}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({ title, description }),
+                }
+            )
+            if (response.ok) {
+                const data = await response.json()
+                setImage(data)
+                toast.success('Image was updated successfully.')
+            } else if (response.status === 404 || response.status === 400) {
+                toast.error('Image not found.')
+            } else {
+                console.error('Failed to update image.')
+            }
+        } catch (error) {
+            if (error instanceof Error)
+                console.error('Error updating image:', error.message)
+            else console.error(error)
+        }
+    }
+
+    const openModal = (modalName: 'edit' | 'delete') => {
+        // config root scroll bar space based on document height
         const body = document.body
         const html = document.documentElement
         const windowHeight = window.innerHeight
@@ -72,11 +108,19 @@ export default function Image() {
         if (!scrollable)
             document.documentElement.classList.add('not_scrollable')
         else document.documentElement.classList.remove('not_scrollable')
+
+        // open modal
+        const modalId =
+            modalName === 'edit'
+                ? 'edit_image_modal'
+                : modalName === 'delete'
+                ? 'confirm_delete_modal'
+                : ''
+
+        if (!modalId) return
+        const modal = document.getElementById(modalId)
         // @ts-ignore
-        const modal: HTMLDialogElement = document.getElementById(
-            'confirm_delete_modal'
-        )
-        modal.showModal()
+        if (modal) modal.showModal()
     }
 
     const containerStyles = 'container my-12 p-2'
@@ -106,7 +150,6 @@ export default function Image() {
                             {image.title}
                         </h1>
                     </div>
-
                     <div className="my-4">
                         <p className="text-neutral/50 text-base sm:text-lg">
                             Image description
@@ -116,8 +159,77 @@ export default function Image() {
                         </h2>
                     </div>
                     <div className="flex gap-4 mt-6">
-                        <button className="btn btn-secondary">Edit</button>
-                        <button className="btn btn-error" onClick={openModal}>
+                    
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => openModal('edit')}
+                        >
+                            <Pencil size={20} />
+                            Edit
+                        </button>
+                        <dialog id="edit_image_modal" className="modal">
+                            <div className="modal-box">
+                                <h3 className="font-bold text-lg">
+                                    Edit image data
+                                </h3>
+                                <div className="mt-3">
+                                    {/* title input */}
+                                    <label className="form-control w-full">
+                                        <div className="label">
+                                            <span className="label-text text-base">
+                                                Enter image title
+                                            </span>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="Title"
+                                            className="input input-bordered w-full text-base"
+                                            value={title}
+                                            onChange={(e) =>
+                                                setTitle(e.target.value)
+                                            }
+                                        />
+                                    </label>
+                                    {/* description input */}
+                                    <label className="form-control w-full">
+                                        <div className="label">
+                                            <span className="label-text text-base">
+                                                Enter image description{' '}
+                                                <span className="text-neutral-content">
+                                                    (optional)
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="description"
+                                            className="input input-bordered w-full text-base"
+                                            value={description}
+                                            onChange={(e) =>
+                                                setDescription(e.target.value)
+                                            }
+                                        />
+                                    </label>
+                                </div>
+                                <div className="modal-action">
+                                    <form method="dialog">
+                                        <button className="btn mr-4">
+                                            Cancel
+                                        </button>
+                                        <button
+                                            className="btn btn-primary"
+                                            onClick={editImage}
+                                        >
+                                            Save
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </dialog>
+                        <button
+                            className="btn btn-error"
+                            onClick={() => openModal('delete')}
+                        >
                             <Trash2 size={20} />
                             Delete
                         </button>
